@@ -21,7 +21,7 @@ document.getElementById("register-form").addEventListener("submit", async (event
     // Update user profile with name
     await updateProfile(user, { displayName: name });
 
-    // Store user details in Firestore
+    // Store user details in Firestore under the `users` collection
     await setDoc(doc(db, "users", user.uid), {
       name: name,
       email: email,
