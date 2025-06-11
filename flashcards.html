@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StudyMate | Flashcards</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <!-- For protected pages, include auth.js -->
+  <script type="module" src="js/auth.js"></script>
+  
+  <!-- Navigation -->
+  <header>
+    <nav class="navbar" aria-label="Main Navigation">
+      <img src="assets/logo.png" alt="StudyMate Logo" style="height:40px;">
+      <ul class="nav-list">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="flashcards.html">Flashcards</a></li>
+        <li><a href="quiz.html">Quiz</a></li>
+        <li><a href="planner.html">Planner</a></li>
+        <li><a href="progress.html">Progress</a></li>
+      </ul>
+      <div id="auth-buttons">
+        <button id="login-btn" class="btn">Login</button>
+        <button id="logout-btn" class="btn">Logout</button>
+      </div>
+      <button id="toggle-dark-mode" class="btn">Dark Mode</button>
+    </nav>
+  </header>
+
+  <!-- Flashcards Content -->
+  <main>
+    <div class="container">
+      <h1>Flashcards</h1>
+      <form id="flashcard-form">
+        <input type="text" id="flashcard-subject" placeholder="Subject (e.g., math)" required>
+        <input type="text" id="flashcard-question" placeholder="Question" required>
+        <input type="text" id="flashcard-answer" placeholder="Answer" required>
+        <button type="submit" class="btn">Add Flashcard</button>
+      </form>
+      <hr>
+      <div id="flashcards-list">
+        <!-- Flashcards will be rendered here -->
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { auth } from "./js/firebase-config.js";
+    import { addFlashcard, getFlashcards, deleteFlashcard } from "./js/flashcards.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js";
+
+    let currentUserUID = null;
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUserUID = user.uid;
+        displayFlashcards();
+      }
+    });
+
+    const form = document.getElementById("flashcard-form");
+    const listDiv = document.getElementById("flashcards-list");
+
+    async function displayFlashcards() {
+      if (!currentUserUID) return;
+      const cards = await getFlashcards(currentUserUID);
+      listDiv.innerHTML = "";
+      cards.forEach((card) => {
+        const cardDiv = document.createElement("div");
+        cardDiv.style.border = "1px solid #ccc";
+        cardDiv.style.padding = "1rem";
+        cardDiv.style.marginBottom = "1rem";
+        cardDiv.innerHTML = `
+          <strong>Subject:</strong> ${card.subject}<br>
+          <strong>Question:</strong> ${card.question}<br>
+          <strong>Answer:</strong> ${card.answer}<br>
+          <button data-id="${card.id}" class="delete-btn btn">Delete</button>
+        `;
+        listDiv.appendChild(cardDiv);
+      });
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const subject = document.getElementById("flashcard-subject").value.trim();
+      const question = document.getElementById("flashcard-question").value.trim();
+      const answer = document.getElementById("flashcard-answer").value.trim();
+      if (subject && question && answer && currentUserUID) {
+        await addFlashcard(currentUserUID, subject, question, answer);
+        form.reset();
+        displayFlashcards();
+      }
+    });
+
+    listDiv.addEventListener("click", async (e) => {
+      if (e.target.classList.contains("delete-btn")) {
+        const cardId = e.target.getAttribute("data-id");
+        await deleteFlashcard(cardId);
+        displayFlashcards();
+      }
+    });
+  </script>
+  <script src="js/common.js"></script>
+</body>
+</html>
