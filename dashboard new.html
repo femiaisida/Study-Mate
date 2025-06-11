@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StudyMate | Dashboard</title>
+  <link rel="stylesheet" href="css/style new.css" />
+</head>
+<body>
+  <!-- Protected page: include auth new.js -->
+  <script type="module" src="js/auth new.js"></script>
+  
+  <header>
+    <nav class="navbar" aria-label="Main Navigation">
+      <img src="assets/logo.png" alt="StudyMate Logo" style="height:40px;">
+      <ul class="nav-list">
+        <li><a href="dashboard new.html">Dashboard</a></li>
+        <li><a href="flashcards new.html">Flashcards</a></li>
+        <li><a href="quiz new.html">Quiz</a></li>
+        <li><a href="planner new.html">Planner</a></li>
+        <li><a href="progress new.html">Progress</a></li>
+      </ul>
+      <div id="auth-buttons">
+        <button id="login-btn" class="btn">Login</button>
+        <button id="logout-btn" class="btn">Logout</button>
+      </div>
+      <button id="toggle-dark-mode" class="btn">Dark Mode</button>
+    </nav>
+  </header>
+  <main>
+    <div class="container">
+      <h1>Welcome to your Dashboard</h1>
+      <p>From here you can manage your study activities.</p>
+      <ul>
+        <li><a href="flashcards new.html">Manage Flashcards</a></li>
+        <li><a href="quiz new.html">Take a Quiz</a></li>
+        <li><a href="planner new.html">Open Planner</a></li>
+        <li><a href="progress new.html">Track Progress</a></li>
+      </ul>
+    </div>
+  </main>
+  <script type="module">
+    import { logoutUser } from "./js/auth new.js";
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      logoutUser();
+    });
+  </script>
+  <script src="js/common new.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StudyMate | Login</title>
+  <link rel="stylesheet" href="css/style new.css" />
+</head>
+<body>
+  <header>
+    <nav class="navbar" aria-label="Main Navigation">
+      <img src="assets/logo.png" alt="StudyMate Logo" style="height:40px;">
+      <ul class="nav-list">
+        <li><a href="index new.html">Home</a></li>
+        <li><a href="register new.html">Register</a></li>
+        <li><a href="login new.html">Login</a></li>
+      </ul>
+      <div id="auth-buttons">
+        <button id="login-btn" class="btn">Login</button>
+        <button id="logout-btn" class="btn">Logout</button>
+      </div>
+      <button id="toggle-dark-mode" class="btn">Dark Mode</button>
+    </nav>
+  </header>
+  <main>
+    <div class="container container-full">
+      <h1>Login</h1>
+      <form id="login-form">
+        <input type="email" id="login-email" placeholder="Enter Email" required />
+        <input type="password" id="login-password" placeholder="Enter Password" required />
+        <button type="submit" class="btn">Login</button>
+      </form>
+      <p>Don't have an account? <a href="register new.html">Register here</a></p>
+    </div>
+  </main>
+  <script type="module">
+    import { auth } from "./js/firebase-config new.js";
+    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js";
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+      signInWithEmailAndPassword(auth, email, password)
+        .then(() => window.location.href = "dashboard new.html")
+        .catch((error) => alert(error.message));
+    });
+  </script>
+  <script src="js/common new.js"></script>
+</body>
+</html>

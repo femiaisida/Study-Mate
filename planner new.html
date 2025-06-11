@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StudyMate | Planner</title>
+  <link rel="stylesheet" href="css/style new.css" />
+  <style>
+    .due-date { margin-left: 1rem; font-size: 0.9rem; color: #555; }
+    #planner-list li { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      margin-bottom: 0.5rem; 
+    }
+  </style>
+</head>
+<body>
+  <!-- Protected page: include auth new.js -->
+  <script type="module" src="js/auth new.js"></script>
+  
+  <header>
+    <nav class="navbar" aria-label="Main Navigation">
+      <img src="assets/logo.png" alt="StudyMate Logo" style="height:40px;">
+      <ul class="nav-list">
+        <li><a href="dashboard new.html">Dashboard</a></li>
+        <li><a href="flashcards new.html">Flashcards</a></li>
+        <li><a href="quiz new.html">Quiz</a></li>
+        <li><a href="planner new.html">Planner</a></li>
+        <li><a href="progress new.html">Progress</a></li>
+      </ul>
+      <div id="auth-buttons">
+        <button id="login-btn" class="btn">Login</button>
+        <button id="logout-btn" class="btn">Logout</button>
+      </div>
+      <button id="toggle-dark-mode" class="btn">Dark Mode</button>
+    </nav>
+  </header>
+  <main>
+    <div class="container container-full">
+      <h1>Revision Planner</h1>
+      <form id="planner-form">
+        <input type="text" id="task" placeholder="Enter Task" required />
+        <input type="date" id="due-date" required />
+        <button type="submit" class="btn">Add Task</button>
+      </form>
+      <ul id="planner-list"></ul>
+    </div>
+  </main>
+  <script src="js/common new.js"></script>
+  <script src="js/planner new.js"></script>
+</body>
+</html>
