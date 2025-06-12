@@ -10,12 +10,19 @@
   --transition-speed: 0.3s;
 }
 
+/* Global Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 /* Global Styles */
 body {
-  margin: 0;
   font-family: Arial, sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
+  line-height: 1.6;
 }
 
 /* Container */
@@ -26,13 +33,13 @@ body {
   padding: 1rem;
   background-color: var(--white);
   border-radius: 0.5rem;
-  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 .container-full {
   max-width: 100%;
 }
 
-/* Header and Navigation */
+/* Header & Navigation */
 header, footer {
   background-color: var(--primary-color);
   color: var(--white);
@@ -43,12 +50,17 @@ header, footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0.8rem 1rem;
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+.navbar img {
+  max-height: 40px;
 }
 .nav-list {
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
+  list-style: none;
   display: flex;
+  gap: 1rem;
 }
 .nav-list li {
   margin: 0 0.5rem;
@@ -56,10 +68,24 @@ header, footer {
 .nav-list li a {
   color: var(--white);
   text-decoration: none;
+  font-weight: bold;
   transition: color var(--transition-speed);
 }
 .nav-list li a:hover {
   color: var(--primary-hover);
+}
+#auth-buttons button {
+  margin-left: 0.5rem;
+  background-color: var(--white);
+  color: var(--primary-color);
+  border: none;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: bold;
+}
+#auth-buttons button:hover {
+  background-color: #e9ecef;
 }
 
 /* Buttons */
@@ -71,6 +97,7 @@ header, footer {
   border-radius: 0.3rem;
   cursor: pointer;
   transition: background-color var(--transition-speed);
+  font-size: 1rem;
 }
 .btn:hover {
   background-color: var(--primary-hover);
@@ -106,221 +133,248 @@ select {
   border-radius: 1rem 0 0 1rem;
 }
 
-/* Dark Mode */
-body.dark {
-  background-color: #121212;
-  color: #eee;
-}
-body.dark .container {
-  background-color: #222;
-}
-body.dark header,
-body.dark footer {
-  background-color: #333;
-}
-
 /* ---------------------- */
-/* Global Styles & Reset  */
-/* ---------------------- */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f8f9fa;
-  color: #333;
-  line-height: 1.6;
-}
-
-/* ---------------------- */
-/* Navigation Bar         */
-/* ---------------------- */
-.navbar {
-  background-color: #007bff;
-  color: #fff;
-  padding: 0.8rem 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.navbar img {
-  max-height: 40px;
-}
-
-.navbar .nav-list {
-  list-style: none;
-  display: flex;
-  gap: 1rem;
-}
-
-.navbar .nav-list li a {
-  text-decoration: none;
-  color: #fff;
-  font-weight: bold;
-  transition: color 0.2s ease-in-out;
-}
-
-.navbar .nav-list li a:hover {
-  color: #ffd700;
-}
-
-#auth-buttons button {
-  margin-left: 0.5rem;
-  background-color: #fff;
-  color: #007bff;
-  border: none;
-  padding: 0.4rem 0.8rem;
-  cursor: pointer;
-  border-radius: 4px;
-  font-weight: bold;
-}
-
-#auth-buttons button:hover {
-  background-color: #e9ecef;
-}
-
-/* ---------------------- */
-/* Container & Page Layout*/
-/* ---------------------- */
-.container {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 1rem;
-  background-color: #fff;
-  border-radius: 6px;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
-}
-
-/* Dashboard specific styling */
-.dashboard h1 {
-  text-align: center;
-  margin-bottom: 1rem;
-  font-size: 2.5rem;
-  color: #333;
-}
-
-/* ---------------------- */
-/* Flashcards Page        */
+/* Flashcards Section     */
 /* ---------------------- */
 
-/* Flashcards Form */
-#flashcard-form {
+/* Flashcards Grid Container */
+#flashcards-list {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  margin-bottom: 1rem;
+  justify-content: center;
 }
 
-#flashcard-form input[type="text"] {
-  flex: 1 1 200px;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-#flashcard-form button {
-  padding: 0.5rem 1rem;
-  background-color: #28a745;
-  border: none;
-  color: #fff;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-}
-
-#flashcard-form button:hover {
-  background-color: #218838;
-}
-
-/* Flashcards List */
-#flashcards-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1rem;
-}
-
-/* Flashcard Card */
+/* Flashcard Container */
 .flashcard {
-  background-color:#0077cc;
-  border: 1rem solid #005fa3;
+  width: 250px;
+  height: 180px; /* Increased height to include delete button space */
+  perspective: 1000px;
+  position: relative;
+  flex-shrink: 0;
+  overflow: visible; /* So children can extend outside if needed */
+}
+
+/* Inner container for flip action */
+.flashcard-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s ease;
+}
+
+/* Flip effect when .flashcard-inner has the "flipped" class */
+.flashcard-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+/* Front & Back Faces */
+.flashcard-front,
+.flashcard-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
   border-radius: 6px;
   padding: 1rem;
+  backface-visibility: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  color: #fff;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
-.flashcard p {
-  margin-bottom: 0.5rem;
+.flashcard-front {
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: center;    /* Center content horizontally (optional) */
+  justify-content: center; /* Center content vertically (optional) */
 }
 
-.flashcard button {
-  display: inline-block;
-  padding: 0.3rem 0.6rem;
-  margin-top: 0.5rem;
-  background-color: #dc3545;
-  color: white;
+
+.flashcard-back {
+  background-color: #f8f9fa;
+  transform: rotateY(180deg);
+}
+
+/* Delete Button - absolutely positioned so it stays on top of its card */
+.delete-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  z-index: 10;
+  background-color:var(--primary-color);
+  color: #ffffff;
   border: none;
   border-radius: 4px;
+  padding: 0.3rem 0.6rem;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
-.flashcard button:hover {
+.delete-btn:hover {
   background-color: #c82333;
 }
 
-/* ---------------------- */
-/* Common Button Style    */
-/* ---------------------- */
-.btn {
-  font-size: 1rem;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
-}
+
 
 /* ---------------------- */
-/* Dark Mode Styles       */
+/* Dark Mode Overrides    */
+/* ---------------------- */
+/* ---------------------- */
+/* Updated Dark Mode Overrides */
 /* ---------------------- */
 body.dark-mode {
-  background-color: #343a40;
-  color: #f8f9fa;
+  background-color: #343a40;  /* Dark background for the body */
+  color: #ffffff;             /* Global text color becomes white */
+  --text-color: #ffffff;       /* Override our CSS variable for text */
 }
 
-body.dark-mode .container {
-  background-color: #495057;
+/* Ensure all headings, paragraphs, lists, and links use white in dark mode */
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode p,
+body.dark-mode li,
+body.dark-mode a {
+  color: #ffffff !important;
+}
+
+/* Containers (e.g., dashboard or any .container elements) */
+body.dark-mode .container,
+body.dark-mode .dashboard-container {
+  background-color: #495057;  /* A dark grey that contrasts with white text */
   box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
 }
 
+/* Navigation Styles in Dark Mode */
 body.dark-mode .navbar {
   background-color: #212529;
 }
-
 body.dark-mode .navbar .nav-list li a {
-  color: #f8f9fa;
+  color: #ffffff;
 }
 
+/* Auth Buttons in Dark Mode */
 body.dark-mode #auth-buttons button {
-  background-color: #f8f9fa;
+  background-color: #ffffff;
   color: #212529;
 }
 
+/* Form Inputs & Interactive Elements */
 body.dark-mode input[type="text"],
-body.dark-mode button {
+body.dark-mode input[type="email"],
+body.dark-mode input[type="password"],
+body.dark-mode input[type="date"],
+body.dark-mode textarea,
+body.dark-mode select {
   background-color: #6c757d;
-  color: #f8f9fa;
+  color: #ffffff;
   border: 1px solid #adb5bd;
 }
 
-body.dark-mode #flashcard-form input[type="text"] {
-  border-color: #6c757d;
+/* Input Placeholders */
+body.dark-mode input::placeholder,
+body.dark-mode textarea::placeholder,
+body.dark-mode select::placeholder {
+  color: #cccccc;
 }
 
+
+
+/* Spinner Animation */
+#loading-spinner {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 0.5rem;
+  border: 4px solid #ccc;
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.flashcard {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.flashcard.removing {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* Style for the subject text on the flashcard front */
+.flashcard-subject {
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem; /* Adds space between subject and question */
+}
+
+/* Style for the question text on the flashcard front */
+.flashcard-question {
+  font-size: 1rem;
+  color: var(--text-color);
+}
+
+/* ---------------------- */
+/* Dashboard Styles       */
+/* ---------------------- */
+
+/* Dashboard main container */
+.dashboard-container {
+  width: 90%;
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: var(--white);
+  border-radius: 0.5rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Dashboard headings */
+.dashboard-container h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Dashboard paragraphs */
+.dashboard-container p {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+/* Dashboard list styling */
+.dashboard-container ul {
+  list-style: none;
+  padding: 0;
+  text-align: center;
+}
+
+.dashboard-container ul li {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard-container ul li a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color var(--transition-speed);
+}
+
+.dashboard-container ul li a:hover {
+  text-decoration: underline;
+  color: var(--primary-hover);
+}
