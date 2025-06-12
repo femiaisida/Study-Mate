@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Ads, Cookiebot, GTM-->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9220668448111826" crossorigin="anonymous"></script>
+    <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="3bb01a83-21cf-41ef-ae7f-189be695480d" type="text/javascript" async></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P6YK70VQ60"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag("js", new Date());
+      gtag("config", "G-P6YK70VQ60");
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>StudyMate | Quiz</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <!-- Protected pages include auth.js -->
+    <script type="module" src="js/auth.js"></script>
+    
+    <!-- Navigation -->
+    <header>
+      <nav class="navbar" aria-label="Main Navigation">
+        <img src="assets/logo.png" alt="StudyMate Logo" style="height:40px; margin-right:1rem;">
+        <ul class="nav-list">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="flashcards.html">Flashcards</a></li>
+          <li><a href="quiz.html">Quiz</a></li>
+          <li><a href="planner.html">Planner</a></li>
+          <li><a href="progress.html">Progress</a></li>
+        </ul>
+        <div id="auth-buttons">
+          <button id="login-btn" class="btn">Login</button>
+          <button id="logout-btn" class="btn">Logout</button>
+        </div>
+        <button id="toggle-dark-mode" class="btn">Dark Mode</button>
+      </nav>
+    </header>
+    
+    <!-- Quiz Content -->
+    <main>
+      <div class="container container-full">
+        <h1>Quiz Challenge</h1>
+        <div class="quiz-settings">
+          <div class="setting">
+            <label for="subject-select">Choose Subject:</label>
+            <select id="subject-select">
+              <!-- Options will be loaded dynamically -->
+              <option value="all">All Subjects</option>
+            </select>
+          </div>
+          <div class="setting">
+            <label for="question-timer">Time per question (seconds):</label>
+            <select id="question-timer">
+              <option value="10">10</option>
+              <option value="15" selected>15</option>
+              <option value="20">20</option>
+              <option value="30">30</option>
+            </select>
+          </div>
+          <div class="setting">
+            <label for="num-questions">Number of Questions:</label>
+            <select id="num-questions">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+            </select>
+          </div>
+        </div>
+        <button id="start-btn" class="btn">Start Quiz</button>
+        <p id="timer-text" style="display:none;">Time left: -- seconds</p>
+        <p id="question-text" style="display:none;">Loading question...</p>
+        <div id="answer-buttons" style="display:none;"></div>
+        <p id="score-text" style="display:none;"></p>
+        <button id="next-btn" class="btn" style="display:none;">Next Question</button>
+        <button id="skip-btn" class="btn" style="display:none;">Skip Question</button>
+      </div>
+    </main>
+    
+    <!-- Quiz Scripts -->
+    <script type="module">
+      import { auth } from "./js/firebase-config.js";
+      import { getFlashcards } from "./js/flashcards.js";
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js";
+
+      let currentUserUID = null;
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUserUID = user.uid;
+          loadSubjects();
+        } else {
+          window.location.href = "login.html";
+        }
+      });
+
+      // Retrieve flashcards, extract a distinct list of subjects, then populate the subject selector.
+      async function loadSubjects() {
+        if (!currentUserUID) return;
+        const flashcards = await getFlashcards(currentUserUID);
+        const subjectSet = new Set();
+        flashcards.forEach((card) => {
+          if (card.subject && card.subject.trim() !== "") {
+            subjectSet.add(card.subject.trim());
+          }
+        });
+        const subjects = Array.from(subjectSet).sort();
+        const subjectSelect = document.getElementById("subject-select");
+        // Reset options with "All Subjects"
+        subjectSelect.innerHTML = `<option value="all">All Subjects</option>`;
+        subjects.forEach((subject) => {
+          const optionElem = document.createElement("option");
+          optionElem.value = subject.toLowerCase();
+          optionElem.textContent = subject;
+          subjectSelect.appendChild(optionElem);
+        });
+      }
+
+      // Here you can add your additional quiz logic, for example, handling the "Start Quiz" button, loading questions, timers, etc.
+    </script>
+    <script src="js/common.js"></script>
+    <script src="js/quiz.js"></script>
+  </body>
+</html>

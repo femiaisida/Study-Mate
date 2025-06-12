@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9220668448111826"
+     crossorigin="anonymous"></script>
+  <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="3bb01a83-21cf-41ef-ae7f-189be695480d" type="text/javascript" async></script>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P6YK70VQ60"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-P6YK70VQ60');
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StudyMate | Progress Tracker</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .progress-container { margin-top: 2rem; }
+    .progress-section { margin-bottom: 2rem; }
+    .progress-bar {
+      width: 100%;
+      background-color: #eee;
+      border-radius: 1rem;
+      overflow: hidden;
+      height: 20px;
+      margin-top: 0.5rem;
+    }
+    .progress-fill {
+      height: 100%;
+      background-color: var(--primary-color);
+      width: 0%;
+      transition: width 0.5s ease-in-out;
+      border-radius: 1rem 0 0 1rem;
+    }
+    .progress-text { margin-top: 0.5rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <!-- For protected pages, include auth.js -->
+  <script type="module" src="js/auth.js"></script>
+  
+  <!-- Navigation -->
+  <header>
+    <nav class="navbar" aria-label="Main Navigation">
+      <img src="assets/logo.png" alt="StudyMate Logo" style="height:40px; margin-right:1rem;">
+      <ul class="nav-list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="quiz.html">Quiz</a></li>
+        <li><a href="planner.html">Planner</a></li>
+        <li><a href="progress.html">Progress</a></li>
+      </ul>
+      <div id="auth-buttons">
+        <button id="login-btn" class="btn">Login</button>
+        <button id="logout-btn" class="btn">Logout</button>
+      </div>
+      <button id="toggle-dark-mode" class="btn">Dark Mode</button>
+    </nav>
+  </header>
+
+  <!-- Progress Tracker Content -->
+  <main>
+    <div class="container container-full">
+      <h1>Progress Tracker</h1>
+      <div class="quiz-settings">
+        <label for="subject-progress">Select Subject:</label>
+        <select id="subject-progress">
+          <option value="all">All Subjects</option>
+          <option value="math">Math</option>
+          <option value="english">English</option>
+          <option value="science">Science</option>
+        </select>
+      </div>
+      <div class="progress-section">
+        <h2>Flashcards Progress</h2>
+        <div id="flashcard-progress" class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <p id="flashcard-text" class="progress-text">0 / 0 flashcards completed (0%)</p>
+      </div>
+      <div class="progress-section">
+        <h2>Revision Tasks Progress</h2>
+        <div id="tasks-progress" class="progress-bar">
+          <div class="progress-fill"></div>
+        </div>
+        <p id="tasks-text" class="progress-text">0 / 0 tasks completed (0%)</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/progress.js"></script>
+</body>
+</html>

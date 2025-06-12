@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Google Ads & Cookiebot -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9220668448111826" crossorigin="anonymous"></script>
+    <script
+      id="Cookiebot"
+      src="https://consent.cookiebot.com/uc.js"
+      data-cbid="3bb01a83-21cf-41ef-ae7f-189be695480d"
+      type="text/javascript"
+      async
+    ></script>
+    <!-- Google Tag Manager -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P6YK70VQ60"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-P6YK70VQ60");
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StudyMate | Flashcards</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <!-- Inline styles for flip effect -->
+    <style>
+      /* Card container with perspective */
+      .flashcard {
+        perspective: 1000px;
+        margin-bottom: 1rem;
+      }
+      /* Inner container that flips */
+      .flashcard-inner {
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.6s;
+        cursor: pointer;
+      }
+      /* Flip state */
+      .flashcard.flipped .flashcard-inner {
+        transform: rotateY(180deg);
+      }
+      /* The two faces */
+      .flashcard-face {
+        position: absolute;
+        width: 100%;
+        backface-visibility: hidden;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 1rem;
+        background: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      /* Back face shows the answer; rotated */
+      .flashcard-back {
+        transform: rotateY(180deg);
+      }
+      /* Ensure the delete button sits outside the card flip */
+      .delete-btn {
+        margin-top: 0.5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- For protected pages, include auth.js -->
+    <script type="module" src="js/auth.js"></script>
+
+    <!-- Navigation -->
+    <header>
+      <nav class="navbar" aria-label="Main Navigation">
+        <img src="assets/logo.png" alt="StudyMate Logo" style="height:40px;">
+        <ul class="nav-list">
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="flashcards.html">Flashcards</a></li>
+          <li><a href="quiz.html">Quiz</a></li>
+          <li><a href="planner.html">Planner</a></li>
+          <li><a href="progress.html">Progress</a></li>
+        </ul>
+        <div id="auth-buttons">
+          <button id="login-btn" class="btn">Login</button>
+          <button id="logout-btn" class="btn">Logout</button>
+        </div>
+        <button id="toggle-dark-mode" class="btn">Dark Mode</button>
+      </nav>
+    </header>
+
+    <!-- Flashcards Content -->
+    <main>
+      <div class="container">
+        <h1>Flashcards</h1>
+        <form id="flashcard-form">
+          <input type="text" id="flashcard-subject" placeholder="Subject (e.g., math)" required>
+          <input type="text" id="flashcard-question" placeholder="Question" required>
+          <input type="text" id="flashcard-answer" placeholder="Answer" required>
+          <button type="submit" class="btn">Add Flashcard</button>
+        </form>
+        <hr>
+        <br>
+        <div id="flashcards-list">
+          <!-- Flashcards will be rendered here -->
+        </div>
+      </div>
+    </main>
+
+    <!-- Flashcards Scripts -->
+    <script type="module">
+      import { auth } from "./js/firebase-config.js";
+      import { addFlashcard, getFlashcards, deleteFlashcard } from "./js/flashcards.js";
+      import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js";
+
+      let currentUserUID = null;
+
+      // Listen for auth state; redirect if not logged in
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUserUID = user.uid;
+          displayFlashcards();
+        } else {
+          window.location.href = "login.html";
+        }
+      });
+
+      const form = document.getElementById("flashcard-form");
+      const listDiv = document.getElementById("flashcards-list");
+
+      async function displayFlashcards() {
+        if (!currentUserUID) return;
+        const cards = await getFlashcards(currentUserUID);
+        listDiv.innerHTML = "";
+        cards.forEach((card) => {
+          // Create card element with flip effect
+          const cardDiv = document.createElement("div");
+          cardDiv.classList.add("flashcard");
+          // Use inner container for flipping; clicking toggles flipped class
+          cardDiv.innerHTML = `
+            <div class="flashcard-inner" onclick="this.parentElement.classList.toggle('flipped')">
+              <div class="flashcard-face flashcard-front">
+                <p><strong>Subject:</strong> ${card.subject}</p>
+                <p><strong>Question:</strong> ${card.question}</p>
+              </div>
+              <div class="flashcard-face flashcard-back">
+                <p><strong>Answer:</strong> ${card.answer}</p>
+              </div>
+            </div>
+            <button data-id="${card.id}" class="delete-btn btn" onclick="deleteCard(event, '${card.id}')">Delete</button>
+          `;
+          listDiv.appendChild(cardDiv);
+        });
+      }
+
+      // Deletion function; stops propagation so it doesn’t trigger flip
+      window.deleteCard = async function (event, cardId) {
+        event.stopPropagation();
+        await deleteFlashcard(cardId);
+        displayFlashcards();
+      };
+
+      // Handle new flashcard submission
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const subject = document.getElementById("flashcard-subject").value.trim();
+        const question = document.getElementById("flashcard-question").value.trim();
+        const answer = document.getElementById("flashcard-answer").value.trim();
+        if (subject && question && answer && currentUserUID) {
+          await addFlashcard(currentUserUID, subject, question, answer);
+          form.reset();
+          displayFlashcards();
+        }
+      });
+    </script>
+    <script src="js/common.js"></script>
+  </body>
+</html>

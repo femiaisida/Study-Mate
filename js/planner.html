@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9220668448111826"
+     crossorigin="anonymous"></script>
+  <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="3bb01a83-21cf-41ef-ae7f-189be695480d" type="text/javascript" async></script>
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-P6YK70VQ60"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-P6YK70VQ60');
+</script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StudyMate | Planner</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .due-date { margin-left: 1rem; font-size: 0.9rem; color: #555; }
+    #planner-list li { 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      margin-bottom: 0.5rem; 
+    }
+  </style>
+</head>
+<body>
+  <!-- For protected pages, include auth.js -->
+  <script type="module" src="js/auth.js"></script>
+  
+  <!-- Navigation -->
+  <header>
+    <nav class="navbar" aria-label="Main Navigation">
+      <img src="assets/logo.png" alt="StudyMate Logo" style="height:40px;">
+      <ul class="nav-list">
+        <li><a href="dashboard.html">Dashboard</a></li>
+        <li><a href="flashcards.html">Flashcards</a></li>
+        <li><a href="quiz.html">Quiz</a></li>
+        <li><a href="planner.html">Planner</a></li>
+        <li><a href="progress.html">Progress</a></li>
+      </ul>
+      <div id="auth-buttons">
+        <button id="login-btn" class="btn">Login</button>
+        <button id="logout-btn" class="btn">Logout</button>
+      </div>
+      <button id="toggle-dark-mode" class="btn">Dark Mode</button>
+    </nav>
+  </header>
+
+  <!-- Planner Content -->
+  <main>
+    <div class="container container-full">
+      <h1>Revision Planner</h1>
+      <form id="planner-form">
+        <input type="text" id="task" placeholder="Enter Task" required />
+        <input type="date" id="due-date" required />
+        <button type="submit" class="btn">Add Task</button>
+      </form>
+      <ul id="planner-list"></ul>
+    </div>
+  </main>
+
+  <script src="js/common.js"></script>
+  <script src="js/planner.js"></script>
+</body>
+</html>
