@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9220668448111826"
-     crossorigin="anonymous"></script>
-    <!-- Cookie Consent Script -->
+    <!-- Google Ads & Cookiebot -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9220668448111826" crossorigin="anonymous"></script>
     <script
       id="Cookiebot"
       src="https://consent.cookiebot.com/uc.js"
@@ -11,7 +10,6 @@
       type="text/javascript"
       async
     ></script>
-
     <!-- Google Tag Manager -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-P6YK70VQ60"></script>
     <script>
@@ -22,11 +20,48 @@
       gtag("js", new Date());
       gtag("config", "G-P6YK70VQ60");
     </script>
-
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StudyMate | Flashcards</title>
     <link rel="stylesheet" href="css/style.css" />
+    <!-- Inline styles for flip effect -->
+    <style>
+      /* Card container with perspective */
+      .flashcard {
+        perspective: 1000px;
+        margin-bottom: 1rem;
+      }
+      /* Inner container that flips */
+      .flashcard-inner {
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.6s;
+        cursor: pointer;
+      }
+      /* Flip state */
+      .flashcard.flipped .flashcard-inner {
+        transform: rotateY(180deg);
+      }
+      /* The two faces */
+      .flashcard-face {
+        position: absolute;
+        width: 100%;
+        backface-visibility: hidden;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        padding: 1rem;
+        background: #fff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      /* Back face shows the answer; rotated */
+      .flashcard-back {
+        transform: rotateY(180deg);
+      }
+      /* Ensure the delete button sits outside the card flip */
+      .delete-btn {
+        margin-top: 0.5rem;
+      }
+    </style>
   </head>
   <body>
     <!-- For protected pages, include auth.js -->
@@ -61,8 +96,8 @@
           <input type="text" id="flashcard-answer" placeholder="Answer" required>
           <button type="submit" class="btn">Add Flashcard</button>
         </form>
-       <hr>
-       <br>
+        <hr>
+        <br>
         <div id="flashcards-list">
           <!-- Flashcards will be rendered here -->
         </div>
@@ -71,14 +106,13 @@
 
     <!-- Flashcards Scripts -->
     <script type="module">
-      // Import our Firebase config and flashcards functions
       import { auth } from "./js/firebase-config.js";
       import { addFlashcard, getFlashcards, deleteFlashcard } from "./js/flashcards.js";
       import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js";
 
       let currentUserUID = null;
 
-      // Check if user is signed in; if not, redirect to login page
+      // Listen for auth state; redirect if not logged in
       onAuthStateChanged(auth, (user) => {
         if (user) {
           currentUserUID = user.uid;
@@ -91,28 +125,39 @@
       const form = document.getElementById("flashcard-form");
       const listDiv = document.getElementById("flashcards-list");
 
-      // Function to display flashcards from Firestore
       async function displayFlashcards() {
         if (!currentUserUID) return;
         const cards = await getFlashcards(currentUserUID);
         listDiv.innerHTML = "";
         cards.forEach((card) => {
+          // Create card element with flip effect
           const cardDiv = document.createElement("div");
           cardDiv.classList.add("flashcard");
-          cardDiv.style.border = "1px solid #ccc";
-          cardDiv.style.padding = "1rem";
-          cardDiv.style.marginBottom = "1rem";
+          // Use inner container for flipping; clicking toggles flipped class
           cardDiv.innerHTML = `
-            <p><strong>Subject:</strong> ${card.subject}</p>
-            <p><strong>Question:</strong> ${card.question}</p>
-            <p><strong>Answer:</strong> ${card.answer}</p>
-            <button data-id="${card.id}" class="delete-btn btn">Delete</button>
+            <div class="flashcard-inner" onclick="this.parentElement.classList.toggle('flipped')">
+              <div class="flashcard-face flashcard-front">
+                <p><strong>Subject:</strong> ${card.subject}</p>
+                <p><strong>Question:</strong> ${card.question}</p>
+              </div>
+              <div class="flashcard-face flashcard-back">
+                <p><strong>Answer:</strong> ${card.answer}</p>
+              </div>
+            </div>
+            <button data-id="${card.id}" class="delete-btn btn" onclick="deleteCard(event, '${card.id}')">Delete</button>
           `;
           listDiv.appendChild(cardDiv);
         });
       }
 
-      // Handle flashcard creation via form submission
+      // Deletion function; stops propagation so it doesn’t trigger flip
+      window.deleteCard = async function (event, cardId) {
+        event.stopPropagation();
+        await deleteFlashcard(cardId);
+        displayFlashcards();
+      };
+
+      // Handle new flashcard submission
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const subject = document.getElementById("flashcard-subject").value.trim();
@@ -124,17 +169,7 @@
           displayFlashcards();
         }
       });
-
-      // Delegate deletion for flashcards
-      listDiv.addEventListener("click", async (e) => {
-        if (e.target.classList.contains("delete-btn")) {
-          const cardId = e.target.getAttribute("data-id");
-          await deleteFlashcard(cardId);
-          displayFlashcards();
-        }
-      });
     </script>
-
     <script src="js/common.js"></script>
   </body>
 </html>
