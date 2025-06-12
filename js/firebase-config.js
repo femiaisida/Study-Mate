@@ -3,7 +3,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.20.0/firebas
 import { getAuth } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-firestore.js";
 
-// ✅ Firebase configuration
+// Your Firebase project credentials
 const firebaseConfig = {
   apiKey: "AIzaSyDa9H7jtoOT_MpL26PvZG2tjwI_bXgOHoE",
   authDomain: "study-mate-67b09.firebaseapp.com",
@@ -16,11 +16,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase Authentication
 const auth = getAuth(app);
-
-// Initialize Firestore Database
 const db = getFirestore(app);
 
 export { auth, db };
