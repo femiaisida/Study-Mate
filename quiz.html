@@ -27,6 +27,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StudyMate | Quiz</title>
     <link rel="stylesheet" href="css/style.css" />
+
+    
   </head>
   <body>
     <!-- Protected pages include auth.js -->
@@ -39,7 +41,7 @@
         <img
           src="assets/logo.png"
           alt="StudyMate Logo"
-          style="height:40px; margin-right:1rem;"
+          
         />
         <ul class="nav-list">
           <li><a href="dashboard.html">Dashboard</a></li>
@@ -52,7 +54,15 @@
           <button id="login-btn" class="btn">Login</button>
           <button id="logout-btn" class="btn">Logout</button>
         </div>
-        <button id="toggle-dark-mode" class="btn">Dark Mode</button>
+         <div id="theme-selector-container">
+      <label for="themeSelector">Theme:</label>
+      <select id="themeSelector">
+        <option value="default">Default</option>
+        <option value="dark">Dark</option>
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+      </select>
+    </div>
       </nav>
     </header>
     
@@ -143,6 +153,7 @@
     <!-- Include common and quiz scripts -->
     <script src="js/common.js"></script>
     <script type="module" src="js/quiz.js"></script>
+    <script type="module" src="js/theme.js"></script>
 
   </body>
 </html>

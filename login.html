@@ -1,69 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9220668448111826"
-     crossorigin="anonymous"></script>
-  <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="3bb01a83-21cf-41ef-ae7f-189be695480d" type="text/javascript" async></script>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-P6YK70VQ60"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <head>
+    <!-- Third-party scripts (Ads, Cookiebot, Analytics) -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9220668448111826" crossorigin="anonymous"></script>
+    <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="3bb01a83-21cf-41ef-ae7f-189be695480d" type="text/javascript" async></script>
+    <!-- Google Tag Manager / gtag.js -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P6YK70VQ60"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-P6YK70VQ60');
+    </script>
+    
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>StudyMate | Login</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    
+  </head>
+  <body>
+    <!-- Declare as a public page -->
+    <script>
+      window.publicPage = true;
+    </script>
+    
+    <!-- Load auth.js once as a module -->
+    <script type="module" src="js/auth.js"></script>
+    
+    <!-- Navigation -->
+    <header>
+      <nav class="navbar" aria-label="Main Navigation">
+        <img src="assets/logo.png" alt="StudyMate Logo">
+        <ul class="nav-list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="register.html">Register</a></li>
+          <li><a href="login.html">Login</a></li>
+        </ul>
+        <!-- Auth buttons (and toggling dark mode) -->
+        <div id="auth-buttons">
+          <button id="toggle-dark-mode" class="btn">Dark Mode</button>
+        </div>
+      </nav>
+    </header>
+    
+    <!-- Login Form -->
+    <main>
+      <div class="container container-full">
+        <h1>Login</h1>
+        <!-- Email/Password Login Form -->
+        <form id="login-form">
+          <input type="email" id="login-email" placeholder="Enter Email" required />
+          <input type="password" id="login-password" placeholder="Enter Password" required />
+          <button type="submit" class="btn">Login</button>
+        </form>
+        
+        <!-- Phone Sign-In Section -->
+        <section id="phone-login">
+          <p>Or sign in with your phone:</p>
+          <input
+            type="text"
+            id="phone-number-input"
+            placeholder="Enter phone number (e.g. +1234567890)"
+            required
+          />
+          <!-- Invisible reCAPTCHA container -->
+          <div id="recaptcha-container"></div>
+          <button id="phone-signin-btn" class="btn">Sign in with Phone</button>
+        </section>
+        
+        <!-- Social Login Section -->
+        <section id="social-login">
+          <p>Or use your social account:</p>
+          <button id="google-signin-btn" class="btn">Sign in with Google</button>
+        </section>
+        
+        <p>Don't have an account? <a href="register.html">Register here</a></p>
+      </div>
+    </main>
+    
+    <!-- Inline Script for Email Sign-In -->
+    <script type="module">
+      import { auth } from "./js/firebase-config.js";
+      import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js";
+      
+      document.getElementById('login-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+        signInWithEmailAndPassword(auth, email, password)
+          .then(() => window.location.href = "dashboard.html")
+          .catch((error) => {
+            // Make sure showToast is exposed globally in auth.js
+            showToast(error.message, "error");
+          });
+      });
+    </script>
+    
+    <!-- Additional Scripts -->
+    <script src="js/common.js"></script>
+    <script type="module" src="js/login.js"></script>
 
-  gtag('config', 'G-P6YK70VQ60');
-</script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>StudyMate | Login</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="icon" type="image/png" href="assets/favicon.png">
-</head>
-
-<body>
-  <!-- Navigation -->
-  <header>
-    <nav class="navbar" aria-label="Main Navigation">
-      <img src="assets/logo.png" alt="StudyMate Logo" style="height:40px;">
-      <ul class="nav-list">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="register.html">Register</a></li>
-        <li><a href="login.html">Login</a></li>
-      </ul>
-      <div id="auth-buttons">
-       
-      <button id="toggle-dark-mode" class="btn">Dark Mode</button>
-    </nav>
-  </header>
-
-  <!-- Login Form -->
-  <main>
-    <div class="container container-full">
-      <h1>Login</h1>
-      <form id="login-form">
-        <input type="email" id="login-email" placeholder="Enter Email" required />
-        <input type="password" id="login-password" placeholder="Enter Password" required />
-        <button type="submit" class="btn">Login</button>
-      </form>
-      <p>Don't have an account? <a href="register.html">Register here</a></p>
+    <script type="module" src="js/theme.js"></script>
+    
+    <!-- Verification Modal -->
+    <div id="verification-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Verify Your Phone</h2>
+        <p>Enter the 6-digit code we sent to your phone:</p>
+        <input type="text" id="verification-code-input" maxlength="6" placeholder="123456" />
+        <div class="modal-actions">
+          <button id="verify-code-btn" class="btn">Verify</button>
+          <button id="cancel-verification-btn" class="btn secondary">Cancel</button>
+        </div>
+        <p id="verification-error" class="error-message"></p>
+      </div>
     </div>
-  </main>
-
-  <script type="module">
-    import { auth } from "./js/firebase-config.js";
-    import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js";
-    document.getElementById('login-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = document.getElementById('login-email').value.trim();
-      const password = document.getElementById('login-password').value.trim();
-      signInWithEmailAndPassword(auth, email, password)
-        .then(() => window.location.href = "dashboard.html")
-        .catch((error) => alert(error.message));
-    });
-  </script>
-  <script src="js/common.js"></script>
-  <script src="js/login.js"></script>
-  
-
-</body>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+    
+  </body>
 </html>

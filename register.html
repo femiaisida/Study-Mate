@@ -1,72 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9220668448111826"
-     crossorigin="anonymous"></script>
-  <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="3bb01a83-21cf-41ef-ae7f-189be695480d" type="text/javascript" async></script>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-P6YK70VQ60"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <head>
+    <!-- Third-party scripts (Ads, Cookiebot, Analytics) -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9220668448111826"
+      crossorigin="anonymous"></script>
+    <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="3bb01a83-21cf-41ef-ae7f-189be695480d" type="text/javascript" async></script>
+    <!-- Google Tag Manager -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P6YK70VQ60"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){ dataLayer.push(arguments); }
+      gtag('js', new Date());
+      gtag('config', 'G-P6YK70VQ60');
+    </script>
+    
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StudyMate | Register</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="icon" type="image/png" href="assets/favicon.png">
 
-  gtag('config', 'G-P6YK70VQ60');
-</script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>StudyMate | Register</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="icon" type="image/png" href="assets/favicon.png">
-</head>
-<body>
-  <!-- Navigation -->
-  <header>
-    <nav class="navbar" aria-label="Main Navigation">
-      <img src="assets/logo.png" alt="StudyMate Logo" style="height:40px;">
-      <ul class="nav-list">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="register.html">Register</a></li>
-        <li><a href="login.html">Login</a></li>
-      </ul>
+    
+  </head>
+  <body>
+    <!-- Declare as a public page -->
+    <script>
+      window.publicPage = true;
+    </script>
+    <!-- Load auth.js once as a module (ensure it attaches showToast to window) -->
+    <script type="module" src="js/auth.js"></script>
+
+    <!-- Navigation -->
+    <header>
+      <nav class="navbar" aria-label="Main Navigation">
+        <img src="assets/logo.png" alt="StudyMate Logo">
+        <ul class="nav-list">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="register.html">Register</a></li>
+          <li><a href="login.html">Login</a></li>
+        </ul>
+        <div id="theme-selector-container">
+          <label for="themeSelector">Theme:</label>
+          <select id="themeSelector">
+            <option value="default">Default</option>
+            <option value="dark">Dark</option>
+            <option value="blue">Blue</option>
+            <option value="green">Green</option>
+          </select>
+        </div>
+      </nav>
+    </header>
+
+    <!-- Registration Form -->
+    <main>
+      <div class="container container-full">
+        <h1>Register</h1>
+        <!-- Email Registration Form -->
+        <form id="register-form">
+          <input type="text" id="name" placeholder="Full Name" required>
+          <input type="email" id="email" placeholder="Email" required>
+          <input type="password" id="password" placeholder="Password" required>
+          <button type="submit" class="btn">Register</button>
+        </form>
+        
+        <!-- Phone Registration Section -->
+        <section id="phone-registration">
+          <p>Or register using your phone:</p>
+          <input type="text" id="phone-number-input" placeholder="Enter phone number (e.g. +1234567890)" required>
+          <!-- Container for invisible reCAPTCHA -->
+          <div id="recaptcha-container"></div>
+          <button id="phone-signin-btn" class="btn">Register with Phone</button>
+        </section>
+
+        <!-- Social Registration Section -->
+        <section id="social-registration">
+          <p>Or register using your social account:</p>
+          <button id="google-signin-btn" class="btn">Register with Google</button>
+        </section>
+        
+        <p>Already have an account? <a href="login.html">Login here</a></p>
+      </div>
+    </main>
+
+    <!-- Inline Script for Email Registration -->
+    <script type="module">
+      import { auth } from "./js/firebase-config.js";
+      import { createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js";
       
-      <button id="toggle-dark-mode" class="btn">Dark Mode</button>
-    </nav>
-  </header>
+      document.getElementById('register-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value.trim();
+        createUserWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
+            // Update profile with full name
+            return updateProfile(userCredential.user, { displayName: name });
+          })
+          .then(() => {
+            showToast("Registration successful! Please log in.", "success");
+            window.location.href = "login.html";
+          })
+          .catch((error) => {
+            showToast(error.message, "error");
+          });
+      });
+    </script>
 
-  <!-- Registration Form -->
-  <main>
-    <div class="container container-full">
-      <h1>Register</h1>
-      <form id="register-form">
-  <input type="text" id="name" placeholder="Full Name" required>
-  <input type="email" id="email" placeholder="Email" required>
-  <input type="password" id="password" placeholder="Password" required>
-  <button type="submit">Register</button>
-</form>
-<p id="error-message"></p>
-<p>Already have an account? <a href="login.html">Login here</a></p>
+    <!-- Additional Scripts -->
+    <script src="js/common.js"></script>
+    <script type="module" src="js/register.js"></script>
+    <script type="module" src="js/theme.js"></script>
+    
+    <!-- Verification Modal -->
+    <div id="verification-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Verify Your Phone</h2>
+        <p>Enter the 6-digit code we sent to your phone:</p>
+        <input type="text" id="verification-code-input" maxlength="6" placeholder="123456" />
+        <div class="modal-actions">
+          <button id="verify-code-btn" class="btn">Verify</button>
+          <button id="cancel-verification-btn" class="btn secondary">Cancel</button>
+        </div>
+        <p id="verification-error" class="error-message"></p>
+      </div>
     </div>
-  </main>
-
-  <script type="module">
-    import { auth } from "./js/firebase-config.js";
-    import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js";
-
-    document.getElementById('register-form').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value.trim();
-      createUserWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          alert("Registration successful! Please log in.");
-          window.location.href = "login.html";
-        })
-        .catch((error) => alert(error.message));
-    });
-  </script>
-  <script src="js/common.js"></script>
-  <script type="module" src="js/register.js"></script>
-
-</body>
+    
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+    
+  </body>
 </html>
