@@ -2,12 +2,62 @@
 
 /* CSS Variables */
 :root {
+  /* ... existing variables ... */
+  --container-bg: var(--white);
+}
+
+/* Dark theme override */
+body.theme-dark,
+body.dark-mode {
+  --container-bg: #495057;  /* A dark background for containers */
+
+    --background-color: #fff;
+  --text-color: #111;
+
+  [data-theme="dark"] {
+  --background-color: #1e1e1e;
+  --text-color: #eee;
+}
+}
+
+:root {
   --primary-color: #0077cc;
   --primary-hover: #005fa3;
   --bg-color: #f4f4f9;
   --text-color: #333;
   --white: #ffffff;
+  --container-bg: var(--white); /* New variable for container background */
   --transition-speed: 0.3s;
+}
+
+/* Customizable Theme Overrides */
+/* Dark Theme */
+body.theme-dark,
+body.dark-mode {
+  --primary-color: #212529;
+  --primary-hover: #1a1a1a;
+  --bg-color: #343a40;
+  --text-color: #ffffff;
+  --container-bg: #495057; /* Ensure containers have a darker background */
+}
+
+
+/* Blue Theme */
+body.theme-blue {
+  --primary-color: #1e90ff;
+  --primary-hover: #0f6cb5;
+  --bg-color: #e6f0ff;
+  --text-color: #333;
+  --container-bg: var(--white); /* You can change this if desired */
+}
+
+/* Green Theme */
+body.theme-green {
+  --primary-color: #28a745;
+  --primary-hover: #218838;
+  --bg-color: #eafbe7;
+  --text-color: #333;
+  --container-bg: var(--white); /* Update if needed */
 }
 
 /* Global Reset */
@@ -19,7 +69,7 @@
 
 /* Global Styles */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Poppins', sans-serif;
   background-color: var(--bg-color);
   color: var(--text-color);
   line-height: 1.6;
@@ -31,7 +81,7 @@ body {
   max-width: 800px;
   margin: 2rem auto;
   padding: 1rem;
-  background-color: var(--white);
+  background-color: var(--container-bg); /* Use our new variable */
   border-radius: 0.5rem;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
@@ -39,6 +89,7 @@ body {
   max-width: 100%;
 }
 
+/* Header & Navigation */
 /* Header & Navigation */
 header, footer {
   background-color: var(--primary-color);
@@ -55,8 +106,9 @@ header, footer {
   color: var(--white);
 }
 .navbar img {
-  max-height: 40px;
+  max-height: 100px; 
 }
+
 .nav-list {
   list-style: none;
   display: flex;
@@ -243,7 +295,7 @@ select {
   max-width: 800px;
   margin: 2rem auto;
   padding: 2rem;
-  background-color: var(--white);
+  background-color: var(--container-bg);
   border-radius: 0.5rem;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
@@ -280,53 +332,6 @@ select {
 }
 
 /* ---------------------- */
-/* Dark Mode Overrides    */
-/* ---------------------- */
-body.dark-mode {
-  background-color: #343a40;
-  color: #ffffff;
-  --text-color: #ffffff;
-}
-body.dark-mode h1,
-body.dark-mode h2,
-body.dark-mode h3,
-body.dark-mode h4,
-body.dark-mode p,
-body.dark-mode li,
-body.dark-mode a {
-  color: #ffffff !important;
-}
-body.dark-mode .container,
-body.dark-mode .dashboard-container {
-  background-color: #495057;
-  box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
-}
-body.dark-mode .navbar {
-  background-color: #212529;
-}
-body.dark-mode .navbar .nav-list li a {
-  color: #ffffff;
-}
-body.dark-mode #auth-buttons button {
-  background-color: #ffffff;
-  color: #212529;
-}
-body.dark-mode input[type="text"],
-body.dark-mode input[type="email"],
-body.dark-mode input[type="password"],
-body.dark-mode input[type="date"],
-body.dark-mode textarea,
-body.dark-mode select {
-  background-color: #6c757d;
-  color: #ffffff;
-  border: 1px solid #adb5bd;
-}
-body.dark-mode input::placeholder,
-body.dark-mode textarea::placeholder,
-body.dark-mode select::placeholder {
-  color: #cccccc;
-}
-
 /* Spinner Animation */
 #loading-spinner {
   text-align: center;
@@ -383,4 +388,132 @@ body.dark-mode select::placeholder {
   #answer-buttons button {
     width: 100%;
   }
+}
+
+/* Dark mode overrides for progress page components */
+body.dark-mode .progress-container,
+body.dark-mode .progress-content,
+body.dark-mode .progress-item {
+  background-color: var(--container-bg, #495057);
+  color: var(--text-color, #ffffff);
+}
+
+body.theme-dark,
+body.dark-mode {
+  --primary-color: #212529;
+  --primary-hover: #1a1a1a;
+  --bg-color: #343a40;
+  --text-color: #ffffff;
+  --container-bg: #495057; /* Ensure containers have a darker background */
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-content {
+  background: var(--background-color, #fff);
+  color: var(--text-color, #111); /* fallback if variable isn't set */
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.25s ease-out;
+}
+
+
+
+.modal-content h2 {
+  margin-top: 0;
+  font-size: 1.5rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.25rem;
+}
+
+.modal input {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  margin-top: 1rem;
+}
+
+/* Modal Dark Mode Overrides */
+body.dark-mode .modal-content,
+body.theme-dark .modal-content,
+[data-theme="dark"] .modal-content {
+  background-color: var(--container-bg, #495057) !important;
+  color: var(--text-color, #eee) !important;
+}
+
+/* Toast Container */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1100;
+}
+
+/* Toast Styles */
+.toast {
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast.error {
+  border-left: 4px solid #f44336; /* red for errors */
+}
+
+.toast.success {
+  border-left: 4px solid #4caf50; /* green for success */
+}
+
+
+
+.error-message {
+  color: crimson;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.btn.secondary {
+  background-color: transparent;
+  border: 1px solid #999;
+  color: #333;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
