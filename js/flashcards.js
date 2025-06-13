@@ -1,5 +1,6 @@
-// js/flashcards.js
+"use strict";
 
+// Import Firebase Firestore methods from your firebase-config.js
 import { db } from "./firebase-config.js";
 import {
   collection,
@@ -8,83 +9,19 @@ import {
   getDocs,
   addDoc,
   deleteDoc,
-  doc
+  doc,
+  updateDoc,
+  increment
 } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-firestore.js";
 
-/** 
- * Display all flashcards for the authenticated user.
- * If a subject filter (input#flashcard-filter) is provided, only matching
- * flashcards are rendered. A loading spinner is shown while fetching.
- */
-export async function displayFlashcards(userId) {
-  const flashcardsList = document.getElementById("flashcards-list");
-  const loader = document.getElementById("loading-spinner");
-  if (!userId || !flashcardsList || !loader) return;
-
-  loader.style.display = "block";
-  flashcardsList.innerHTML = "";
-  
-  const cards = await getFlashcards(userId);
-  loader.style.display = "none";
-
-  // Apply subject filter if provided
-  const filterInput = document.getElementById("flashcard-filter");
-  let filteredCards = cards;
-  if (filterInput && filterInput.value.trim() !== "") {
-    const filterText = filterInput.value.trim().toLowerCase();
-    filteredCards = cards.filter(card =>
-      card.subject.toLowerCase().includes(filterText)
-    );
-  }
-
-  filteredCards.forEach((card) => {
-    const cardDiv = document.createElement("div");
-    cardDiv.classList.add("flashcard");
-  cardDiv.innerHTML = `
-  <div class="flashcard-inner" onclick="flipCard(this)">
-    <div class="flashcard-front">
-      <p class="flashcard-subject"><strong>Subject:</strong> ${card.subject}</p>
-      <p class="flashcard-question"><strong>Question:</strong> ${card.question}</p>
-    </div>
-    <div class="flashcard-back">
-      <p><strong>Answer:</strong> ${card.answer}</p>
-    </div>
-  </div>
-  <button data-id="${card.id}" class="delete-btn btn" onclick="deleteCard(event, '${card.id}')">Delete</button>
-`;
-
-
-    flashcardsList.appendChild(cardDiv);
-  });
-}
-
-/** 
- * Adds a new flashcard for the given user.
- * The subject field is auto-capitalized (first letter uppercase, rest lower-case).
- */
-export async function addFlashcard(userId, subject, question, answer) {
-  try {
-    // Auto capitalize subject
-    subject = subject.charAt(0).toUpperCase() + subject.slice(1).toLowerCase();
-    const data = {
-      userId,
-      subject,
-      question,
-      answer,
-      createdAt: new Date()
-    };
-    const ref = await addDoc(collection(db, "flashcards"), data);
-    console.log("Flashcard added:", ref.id);
-    return ref.id;
-  } catch (err) {
-    console.error("Error adding flashcard:", err);
-  }
-}
-
-/** 
+/**
  * Retrieves all flashcards for the given user from Firestore.
  */
 export async function getFlashcards(userId) {
+  if (!userId) {
+    console.error("Error fetching flashcards: userId is undefined");
+    return [];
+  }
   try {
     const q = query(collection(db, "flashcards"), where("userId", "==", userId));
     const snapshot = await getDocs(q);
@@ -95,7 +32,92 @@ export async function getFlashcards(userId) {
   }
 }
 
-/** 
+/**
+ * Displays all flashcards for the authenticated user.
+ * It retrieves flashcards, optionally filters them based on the filter input,
+ * and renders them into the DOM.
+ */
+export async function displayFlashcards(userId) {
+  if (!userId) {
+    console.error("displayFlashcards: userId is undefined");
+    return;
+  }
+
+  const flashcardsList = document.getElementById("flashcards-list");
+  const loader = document.getElementById("loading-spinner");
+  if (!flashcardsList || !loader) {
+    console.error("displayFlashcards: Missing flashcardsList or loader element.");
+    return;
+  }
+
+  loader.style.display = "block";
+  flashcardsList.innerHTML = "";
+
+  // Retrieve flashcards from Firestore.
+  const cards = await getFlashcards(userId);
+  loader.style.display = "none";
+
+  // Expose the data globally for testing.
+  window.cardsData = cards;
+  console.log("Total cards retrieved from Firestore:", cards.length);
+
+  // Get filter text (if available)
+  const filterInput = document.getElementById("flashcard-filter");
+  let filterText = "";
+  if (filterInput) {
+    filterText = filterInput.value.trim().toLowerCase();
+  }
+
+  // Render only cards that match the filter if provided
+  cards.forEach((card) => {
+    // If filter text exists and card.subject does not include it, skip this card.
+    if (filterText && !card.subject.toLowerCase().includes(filterText)) {
+      return;
+    }
+
+    const cardDiv = document.createElement("div");
+    cardDiv.classList.add("flashcard");
+    cardDiv.innerHTML = `
+      <div class="flashcard-inner" onclick="flipCard(this)">
+        <div class="flashcard-front">
+          <p class="flashcard-subject"><strong>Subject:</strong> ${card.subject}</p>
+          <p class="flashcard-question"><strong>Question:</strong> ${card.question}</p>
+          <p class="flashcard-studiedTime"><strong>Studied Hours:</strong> ${card.studiedTime ? card.studiedTime.toFixed(2) : 0}</p>
+        </div>
+        <div class="flashcard-back">
+          <p><strong>Answer:</strong> ${card.answer}</p>
+        </div>
+      </div>
+      <button data-id="${card.id}" class="delete-btn btn" onclick="deleteCard(event, '${card.id}')">Delete</button>
+    `;
+    flashcardsList.appendChild(cardDiv);
+  });
+}
+
+/**
+ * Adds a new flashcard for the given user in Firestore.
+ */
+export async function addFlashcard(userId, subject, question, answer) {
+  try {
+    // Auto-capitalize subject.
+    subject = subject.charAt(0).toUpperCase() + subject.slice(1).toLowerCase();
+    const data = {
+      userId,
+      subject,
+      question,
+      answer,
+      studiedTime: 0, // Initialize studied time to 0 hours.
+      createdAt: new Date()
+    };
+    const ref = await addDoc(collection(db, "flashcards"), data);
+    console.log("Flashcard added:", ref.id);
+    return ref.id;
+  } catch (err) {
+    console.error("Error adding flashcard:", err);
+  }
+}
+
+/**
  * Deletes a flashcard from Firestore given its document ID.
  */
 export async function deleteFlashcard(cardId) {
@@ -107,37 +129,49 @@ export async function deleteFlashcard(cardId) {
   }
 }
 
-/** 
- * Global function to flip a flashcard.
- * Called via inline onclick on the .flashcard-inner element.
+/**
+ * Updates the flashcard's studied time by incrementing it with the specified hours.
+ * After updating, it refreshes the flashcards UI.
  */
-window.flipCard = function (el) {
+export async function updateFlashcardStudyTime(flashcardId, hours) {
+  try {
+    const flashcardRef = doc(db, "flashcards", flashcardId);
+    await updateDoc(flashcardRef, {
+      studiedTime: increment(hours)
+    });
+    console.log(`Updated flashcard ${flashcardId}: incremented studiedTime by ${hours} hour(s).`);
+
+    // Refresh the flashcards UI after updating.
+    if (window.currentUserUID) {
+      displayFlashcards(window.currentUserUID);
+    }
+  } catch (err) {
+    console.error("Error updating flashcard studiedTime:", err);
+  }
+}
+
+// Expose global functions for inline event handlers.
+window.flipCard = function(el) {
   el.classList.toggle("flipped");
 };
 
-/**
- * Global function to delete a flashcard with an animation.
- * Adds a 'removing' class to trigger a CSS animation before deletion.
- */
-window.deleteCard = async function (event, cardId) {
+window.deleteCard = async function(event, cardId) {
   event.stopPropagation();
-  const flashcardElement = event.target.closest('.flashcard');
+  const flashcardElement = event.target.closest(".flashcard");
   if (flashcardElement) {
-    // Add CSS class for delete-animation (e.g. fade out, slide up)
     flashcardElement.classList.add("removing");
-    // Wait for the animation to complete (assume 500ms)
     setTimeout(async () => {
       await deleteFlashcard(cardId);
-      if (window.currentUserUID) displayFlashcards(window.currentUserUID);
+      if (window.currentUserUID) {
+        displayFlashcards(window.currentUserUID);
+      }
     }, 500);
   }
 };
 
-/**
- * Attach event listeners on DOMContentLoaded for form submission and filtering.
- */
+// Wait until the DOM is loaded to attach event listeners.
 document.addEventListener("DOMContentLoaded", () => {
-  // Handle form submission for adding new flashcards
+  // Event listener for form submission to add new flashcards.
   const form = document.getElementById("flashcard-form");
   if (form) {
     form.addEventListener("submit", async (e) => {
@@ -155,11 +189,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Attach filter listener for flashcards by subject
+  // Event listener for filtering flashcards by subject.
   const filterInput = document.getElementById("flashcard-filter");
   if (filterInput) {
     filterInput.addEventListener("input", () => {
-      if (window.currentUserUID) displayFlashcards(window.currentUserUID);
+      if (window.currentUserUID) {
+        displayFlashcards(window.currentUserUID);
+      }
     });
   }
 });
+
+// Expose the update function globally for testing purposes.
+window.updateFlashcardStudyTime = updateFlashcardStudyTime;

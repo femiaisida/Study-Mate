@@ -7,25 +7,43 @@ import {
   getDoc,
   setDoc,
   onSnapshot,
-  serverTimestamp
+  serverTimestamp,
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc
 } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-firestore.js";
 
 /* 
-  The following functions still use localStorage to get flashcards and tasks.
-  You can later rewrite them to pull data from Firebase if needed.
+  Replace localStorage calls with Firebase queries.
+  -------------------------------
+  Retrieves all flashcards for a given user from Firestore.
 */
-function getAllFlashcards() {
+async function getAllFlashcards(userId) {
   try {
-    return JSON.parse(localStorage.getItem("flashcards")) || [];
+    const flashcardsRef = collection(db, "flashcards");
+    const q = query(flashcardsRef, where("userId", "==", userId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   } catch (e) {
+    console.error("Error fetching flashcards from Firebase:", e);
     return [];
   }
 }
 
-function getAllTasks() {
+/* 
+  Retrieves all tasks for a given user from Firestore.
+  (Assumes tasks are stored in a collection named "revisionTasks")
+*/
+async function getAllTasks(userId) {
   try {
-    return JSON.parse(localStorage.getItem("revisionTasks")) || [];
+    const tasksRef = collection(db, "revisionTasks");
+    const q = query(tasksRef, where("userId", "==", userId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
   } catch (e) {
+    console.error("Error fetching tasks from Firebase:", e);
     return [];
   }
 }
@@ -38,9 +56,11 @@ function getAllTasks() {
 */
 async function getStudyDataFirebase(uid) {
   try {
+    console.log("getStudyDataFirebase called with UID:", uid);
     const studyDocRef = doc(db, "progress", uid);
     const studySnap = await getDoc(studyDocRef);
     if (studySnap.exists()) {
+      console.log("Existing study data found:", studySnap.data());
       return studySnap.data();
     } else {
       const initialData = { 
@@ -51,6 +71,7 @@ async function getStudyDataFirebase(uid) {
         monthTime: 0 
       };
       await setDoc(studyDocRef, initialData);
+      console.log("Created new study data:", initialData);
       return initialData;
     }
   } catch (error) {
@@ -71,8 +92,12 @@ async function getStudyDataFirebase(uid) {
 function listenToStudyInsights(uid) {
   const studyDocRef = doc(db, "progress", uid);
   onSnapshot(studyDocRef, (docSnap) => {
+    console.log("onSnapshot triggered for UID:", uid);
     if (docSnap.exists()) {
+      console.log("Real-time update received:", docSnap.data());
       updateStudyInsightsUI(docSnap.data());
+    } else {
+      console.log("No study data found for UID:", uid);
     }
   });
 }
@@ -89,13 +114,15 @@ function updateStudyInsightsUI(studyData) {
 /*
   Update Task Completion Breakdown Chart using Chart.js.
 */
-function updateTaskBreakdownChart() {
-  const tasks = getAllTasks();
-
-  // Group tasks by subject
+async function updateTaskBreakdownChart() {
+  const tasks = await getAllTasks(window.currentUserUID);
+  
+  // Group tasks by subject.
   const subjects = {};
   tasks.forEach((task) => {
-    const sub = task.subject || "Unknown";
+    // Only consider tasks with a valid subject.
+    if (!task.subject || task.subject.trim() === "") return;
+    const sub = task.subject;
     if (!subjects[sub]) {
       subjects[sub] = { total: 0, done: 0 };
     }
@@ -104,15 +131,15 @@ function updateTaskBreakdownChart() {
       subjects[sub].done++;
     }
   });
-
+  
   const labels = Object.keys(subjects);
   const data = labels.map((label) => {
     const obj = subjects[label];
     return obj.total ? Math.round((obj.done / obj.total) * 100) : 0;
   });
-
+  
   const ctx = document.getElementById("tasksChart").getContext("2d");
-  // Destroy the old chart instance if needed
+  // Destroy the old chart instance if needed.
   if (window.tasksChartInstance) {
     window.tasksChartInstance.destroy();
   }
@@ -138,32 +165,34 @@ function updateTaskBreakdownChart() {
           ticks: {
             callback: function (value) {
               return value + "%";
-            },
-          },
-        },
-      },
-    },
+            }
+          }
+        }
+      }
+    }
   });
 }
 
 /*
   Update Memory Strength Scores section.
   Calculates an average "studiedCount" per subject from flashcards.
+  Only flashcards with a valid subject are included.
 */
-function updateMemoryStrengthScores() {
-  const flashcards = getAllFlashcards();
+async function updateMemoryStrengthScores() {
+  const flashcards = await getAllFlashcards(window.currentUserUID);
   const subjects = {};
   flashcards.forEach((card) => {
-    const sub = card.subject || "Unknown";
+    // Only include flashcards that have a defined, non-empty subject.
+    if (!card.subject || card.subject.trim() === "") return;
+    const sub = card.subject;
     if (!subjects[sub]) {
       subjects[sub] = { total: 0, sum: 0 };
     }
     subjects[sub].total++;
-    // Use 'studiedCount' if available; otherwise default to 0.
     const count = card.studiedCount || 0;
     subjects[sub].sum += count;
   });
-
+  
   const memoryScoresDiv = document.getElementById("memory-scores");
   let html =
     "<table style='width:100%; border-collapse: collapse;'><tr><th style='border: 1px solid #ddd; padding: 8px;'>Subject</th><th style='border: 1px solid #ddd; padding: 8px;'>Avg. Study Count</th></tr>";
@@ -181,24 +210,21 @@ function updateMemoryStrengthScores() {
   Update Milestones & Achievements section.
   Checks thresholds for flashcards, tasks, and study streak.
 */
-function updateAchievements() {
-  const flashcards = getAllFlashcards();
-  const tasks = getAllTasks();
+async function updateAchievements() {
+  const flashcards = await getAllFlashcards(window.currentUserUID);
+  const tasks = await getAllTasks(window.currentUserUID);
   const achievements = [];
-
+  
   if (flashcards.length >= 50)
     achievements.push("Flashcards Master: You've studied 50+ flashcards!");
   if (flashcards.filter((card) => card.studied === true).length >= 25)
     achievements.push("Consistent Reviewer: Studied 25+ flashcards marked as reviewed!");
   if (tasks.filter((task) => task.done === true).length >= 10)
     achievements.push("Task Finisher: Completed 10+ revision tasks!");
-
-  // The study streak is updated via Firebase study data.
-  // For example, if the streak is updated in the study insights realtime listener.
-
+  
   if (achievements.length === 0)
     achievements.push("Keep pushing! Your progress will unlock achievements.");
-
+  
   const achDiv = document.getElementById("achievements");
   achDiv.innerHTML = "<ul>" + achievements.map((a) => `<li>${a}</li>`).join("") + "</ul>";
 }
@@ -206,19 +232,23 @@ function updateAchievements() {
 /*
   Update Smart Suggestions section.
   Provides recommendations based on flashcards and tasks completion percentages.
+  Only includes entries with a valid subject.
 */
-function updateSmartSuggestions() {
-  const flashcards = getAllFlashcards();
-  const tasks = getAllTasks();
-
+async function updateSmartSuggestions() {
+  const flashcards = await getAllFlashcards(window.currentUserUID);
+  const tasks = await getAllTasks(window.currentUserUID);
+  
   const flashcardSubjects = {};
   flashcards.forEach((card) => {
-    const sub = card.subject || "Unknown";
-    if (!flashcardSubjects[sub]) flashcardSubjects[sub] = { total: 0, completed: 0 };
+    // Only include flashcards that have a valid subject.
+    if (!card.subject || card.subject.trim() === "") return;
+    const sub = card.subject;
+    if (!flashcardSubjects[sub])
+      flashcardSubjects[sub] = { total: 0, completed: 0 };
     flashcardSubjects[sub].total++;
     if (card.studied) flashcardSubjects[sub].completed++;
   });
-
+  
   const suggestions = [];
   for (const sub in flashcardSubjects) {
     const obj = flashcardSubjects[sub];
@@ -227,15 +257,18 @@ function updateSmartSuggestions() {
       suggestions.push(`Review more flashcards in ${sub} (${Math.round(percent)}% completed).`);
     }
   }
-
+  
   const taskSubjects = {};
   tasks.forEach((task) => {
-    const sub = task.subject || "Unknown";
-    if (!taskSubjects[sub]) taskSubjects[sub] = { total: 0, done: 0 };
+    // Only include tasks that have a valid subject.
+    if (!task.subject || task.subject.trim() === "") return;
+    const sub = task.subject;
+    if (!taskSubjects[sub])
+      taskSubjects[sub] = { total: 0, done: 0 };
     taskSubjects[sub].total++;
     if (task.done) taskSubjects[sub].done++;
   });
-
+  
   for (const sub in taskSubjects) {
     const obj = taskSubjects[sub];
     const percent = obj.total ? (obj.done / obj.total) * 100 : 0;
@@ -243,36 +276,83 @@ function updateSmartSuggestions() {
       suggestions.push(`Schedule a revision for ${sub} tasks (${Math.round(percent)}% completed).`);
     }
   }
-
+  
   if (suggestions.length === 0)
     suggestions.push("Great job! All subjects are progressing well.");
-
+  
   const recDiv = document.getElementById("recommendations");
   recDiv.innerHTML = "<ul>" + suggestions.map((s) => `<li>${s}</li>`).join("") + "</ul>";
 }
 
 /*
-  Overall function to update the dashboard.
-  It sets up the Firebase real-time listener for study insights and updates the other sections.
+  AUTOMATIC REVISION TASK CREATION
+  This function checks if the current user has any revision tasks in Firestore.
+  If none exist, it automatically creates a default revision task.
 */
-function updateProgressDashboard() {
-  // Update non-Firebase data
-  updateTaskBreakdownChart();
-  updateMemoryStrengthScores();
-  updateAchievements();
-  updateSmartSuggestions();
+async function ensureRevisionTasks(userId) {
+  const tasks = await getAllTasks(userId);
+  if (tasks.length === 0) {
+    try {
+      const defaultTask = {
+        userId: userId,
+        subject: "General", // Default subject; adjust if needed.
+        done: false,
+        description: "This is your default revision task. Edit or mark as done once completed.",
+        createdAt: serverTimestamp()
+      };
+      await addDoc(collection(db, "revisionTasks"), defaultTask);
+      console.log("Default revision task created for user:", userId);
+    } catch (error) {
+      console.error("Error creating default revision task:", error);
+    }
+  }
+}
 
-  // For study insights, set a real-time listener if UID is available.
+/*
+  Overall function to update the dashboard.
+  It ensures that a study progress document exists for the current user,
+  then sets up the Firebase real-time listener for study insights and updates the other sections.
+*/
+async function updateProgressDashboard() {
+  console.log("updateProgressDashboard called, currentUserUID:", window.currentUserUID);
+  
+  // Update non-Firebase UI elements (using Firebase data):
+  await updateTaskBreakdownChart();
+  await updateMemoryStrengthScores();
+  await updateAchievements();
+  await updateSmartSuggestions();
+  
+  // Ensure at least one revision task exists automatically.
+  await ensureRevisionTasks(window.currentUserUID);
+  
+  // For study insights, get or create study data before setting up the real-time listener.
   if (window.currentUserUID) {
-    listenToStudyInsights(window.currentUserUID);
+    getStudyDataFirebase(window.currentUserUID)
+      .then((data) => {
+        console.log("Study data retrieved/created:", data);
+        listenToStudyInsights(window.currentUserUID);
+      })
+      .catch((error) => {
+         console.error("Error retrieving/creating study data:", error);
+      });
   } else {
-    // If UID is not available, fall back to default display.
+    // If no UID, fall back to default display.
     updateStudyInsightsUI({ streak: 0, weekTime: 0, monthTime: 0 });
   }
 }
 
-// Update the dashboard on page load.
-document.addEventListener("DOMContentLoaded", updateProgressDashboard);
+// Wait for DOM loaded, then poll until window.currentUserUID is set before updating the dashboard.
+document.addEventListener("DOMContentLoaded", () => {
+  const uidChecker = setInterval(() => {
+    if (window.currentUserUID) {
+      clearInterval(uidChecker);
+      updateProgressDashboard();
+    }
+  }, 100);
+});
 
 // (Optional) Export updateProgressDashboard if you want to call it from elsewhere.
 export { updateProgressDashboard };
+
+// Expose getStudyDataFirebase globally for testing in the console.
+window.getStudyDataFirebase = getStudyDataFirebase;
