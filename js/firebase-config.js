@@ -1,6 +1,6 @@
 // js/firebase-config.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-firestore.js";
 
 // Your Firebase project credentials
@@ -19,4 +19,8 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-export { auth, db };
+// Set up provider instances for social login
+const googleProvider = new GoogleAuthProvider();
+const facebookProvider = new FacebookAuthProvider();
+
+export { auth, db, googleProvider, facebookProvider };
