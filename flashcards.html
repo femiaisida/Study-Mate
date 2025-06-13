@@ -7,9 +7,6 @@
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <!-- For protected pages, include auth.js -->
-    <script type="module" src="js/auth.js"></script>
-
     <!-- Navigation -->
     <header>
       <nav class="navbar">
@@ -31,44 +28,34 @@
 
     <!-- Flashcards Content -->
     <main>
-      <input type="text" id="flashcard-filter" placeholder="Filter by subject..." />
-
-      <div id="loading-spinner" style="display: none;">
-  <div class="spinner"></div>
-  <p>Loading flashcards...</p>
-</div>
-
       <div class="container">
         <h1>Flashcards</h1>
+        <input type="text" id="flashcard-filter" placeholder="Filter by subject..." />
+
+        <!-- Loading Spinner -->
+        <div id="loading-spinner" style="display: none;">
+          <div class="spinner"></div>
+          <p>Loading flashcards...</p>
+        </div>
+
+        <!-- Form for Adding Flashcards -->
         <form id="flashcard-form">
-          <input
-            type="text"
-            id="flashcard-subject"
-            placeholder="Subject (e.g., math)"
-            required
-          />
-          <input
-            type="text"
-            id="flashcard-question"
-            placeholder="Question"
-            required
-          />
-          <input
-            type="text"
-            id="flashcard-answer"
-            placeholder="Answer"
-            required
-          />
+          <input type="text" id="flashcard-subject" placeholder="Subject (e.g., math)" required />
+          <input type="text" id="flashcard-question" placeholder="Question" required />
+          <input type="text" id="flashcard-answer" placeholder="Answer" required />
           <button type="submit" class="btn">Add Flashcard</button>
         </form>
         <hr />
+
+        <!-- Flashcards List Container (ONLY ONE INSTANCE) -->
         <div id="flashcards-list">
           <!-- Flashcards are rendered here dynamically -->
         </div>
       </div>
     </main>
 
-    <!-- Include your script files -->
+    <!-- Include your script files at the end of the body -->
+    <script type="module" src="js/auth.js"></script>
     <script type="module" src="js/flashcards.js"></script>
     <script src="js/common.js"></script>
   </body>

@@ -35,9 +35,6 @@
   </style>
 </head>
 <body>
-  <!-- For protected pages -->
-  <script type="module" src="js/auth.js"></script>
-  
   <!-- Navigation -->
   <header>
     <nav class="navbar" aria-label="Main Navigation">
@@ -104,8 +101,9 @@
     </div>
   </main>
 
+  <!-- Include your script files at the end of the body -->
+  <script type="module" src="js/auth.js"></script>
   <script src="js/common.js"></script>
-  <script type="module" src="js/progress.js"></script>
-
+  <script type="module" src="./js/progress.js"></script>
 </body>
 </html>

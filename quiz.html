@@ -1,29 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <!-- Ads, Cookiebot, GTM-->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9220668448111826" crossorigin="anonymous"></script>
-    <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="3bb01a83-21cf-41ef-ae7f-189be695480d" type="text/javascript" async></script>
+    <!-- Ads, Cookiebot, GTM -->
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9220668448111826"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      id="Cookiebot"
+      src="https://consent.cookiebot.com/uc.js"
+      data-cbid="3bb01a83-21cf-41ef-ae7f-189be695480d"
+      type="text/javascript"
+      async
+    ></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-P6YK70VQ60"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+      function gtag() {
+        dataLayer.push(arguments);
+      }
       gtag("js", new Date());
       gtag("config", "G-P6YK70VQ60");
     </script>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StudyMate | Quiz</title>
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
     <!-- Protected pages include auth.js -->
-    <script type="module" src="js/auth.js"></script>
+   <script type="module" src="js/auth.js"></script>
+
     
     <!-- Navigation -->
     <header>
       <nav class="navbar" aria-label="Main Navigation">
-        <img src="assets/logo.png" alt="StudyMate Logo" style="height:40px; margin-right:1rem;">
+        <img
+          src="assets/logo.png"
+          alt="StudyMate Logo"
+          style="height:40px; margin-right:1rem;"
+        />
         <ul class="nav-list">
           <li><a href="dashboard.html">Dashboard</a></li>
           <li><a href="flashcards.html">Flashcards</a></li>
@@ -47,7 +64,6 @@
           <div class="setting">
             <label for="subject-select">Choose Subject:</label>
             <select id="subject-select">
-              <!-- Options will be loaded dynamically -->
               <option value="all">All Subjects</option>
             </select>
           </div>
@@ -80,14 +96,16 @@
       </div>
     </main>
     
-    <!-- Quiz Scripts -->
+    <!-- Quiz Initialization Script -->
     <script type="module">
       import { auth } from "./js/firebase-config.js";
       import { getFlashcards } from "./js/flashcards.js";
       import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.20.0/firebase-auth.js";
 
-      let currentUserUID = null;
+      // Use a local variable to track the user's UID.
+      let currentUserUID = window.currentUserUID || null;
 
+      // Attach onAuthStateChanged to ensure currentUserUID is set and to load subjects.
       onAuthStateChanged(auth, (user) => {
         if (user) {
           currentUserUID = user.uid;
@@ -97,7 +115,7 @@
         }
       });
 
-      // Retrieve flashcards, extract a distinct list of subjects, then populate the subject selector.
+      // Retrieve flashcards and extract distinct subjects for the quiz settings.
       async function loadSubjects() {
         if (!currentUserUID) return;
         const flashcards = await getFlashcards(currentUserUID);
@@ -109,7 +127,7 @@
         });
         const subjects = Array.from(subjectSet).sort();
         const subjectSelect = document.getElementById("subject-select");
-        // Reset options with "All Subjects"
+        // Reset options with "All Subjects" as the default.
         subjectSelect.innerHTML = `<option value="all">All Subjects</option>`;
         subjects.forEach((subject) => {
           const optionElem = document.createElement("option");
@@ -118,10 +136,13 @@
           subjectSelect.appendChild(optionElem);
         });
       }
-
-      // Here you can add your additional quiz logic, for example, handling the "Start Quiz" button, loading questions, timers, etc.
+      
+      // Additional quiz logic (e.g., start quiz, timers, question handling) can be added here or in quiz.js.
     </script>
+    
+    <!-- Include common and quiz scripts -->
     <script src="js/common.js"></script>
-    <script src="js/quiz.js"></script>
+    <script type="module" src="js/quiz.js"></script>
+
   </body>
 </html>
