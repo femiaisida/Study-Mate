@@ -89,6 +89,13 @@ body {
   max-width: 100%;
 }
 
+#footer-content{
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+  color: var(--text-color);
+}
+
 /* Header & Navigation */
 /* Header & Navigation */
 header, footer {
